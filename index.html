@@ -1,0 +1,188 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <script src="https://unpkg.com/three@0.140.2/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.137.4/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://unpkg.com/three@0.137.4/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="three-vrm.js"></script>
+  </head>
+<body>
+ <h1>CG 最終提出課題</h1>
+ コメント
+ <script>
+      // ページの読み込みを待つ
+      window.addEventListener('DOMContentLoaded', init);
+
+      function init() {
+        // サイズを指定
+        const width = 800
+        const height = 600;
+
+        // レンダラーを作成
+        var renderer = new THREE.WebGLRenderer();
+        document.body.appendChild(renderer.domElement);
+        renderer.setSize(width, height);
+        //影を有効にする
+        renderer.shadowMap.enabled = true;
+        // 背景の色を設定
+        renderer.setClearColor(0x000000);
+
+
+        // シーンを作成
+        const scene = new THREE.Scene();
+
+        // カメラを作成
+        const camera = new THREE.PerspectiveCamera(45, width / height);
+        // カメラの初期座標を設定
+        camera.position.set(0, 5, 10);
+
+        // カメラコントローラーを作成
+        const controls = new THREE.OrbitControls(camera, document.body); 
+        
+        // 平行光源1
+        var directionalLight1 = new THREE.DirectionalLight(0xffffff);
+        directionalLight1.position.set(10, 10, 10);
+        scene.add(directionalLight1);
+
+        // 平行光源2
+        var directionalLight2 = new THREE.DirectionalLight(0xffffff);
+        directionalLight2.position.set(-10, -10, 10);
+       // directionlight2.castShadow = true;
+        scene.add(directionalLight2);
+
+        //地面
+        var planeGeometry = new THREE.PlaneGeometry(10,10,10,10); //縦、横、分割数、分割数
+        var planeMaterial = new THREE.MeshBasicMaterial({color: 0xE6E6FA});
+        var plane = new THREE.Mesh(planeGeometry,planeMaterial);
+        plane.rotation.set( -Math.PI/2, 0, 0 );
+        plane.position.set(0,0,0);
+       // plane.receiveShadow = true;
+        scene.add(plane);
+
+        
+
+        // VRMの読み込み
+       // let mixer;
+        const loader = new THREE.GLTFLoader();
+        loader.load('Zundamon(Flying Type)_vrm.vrm',
+        (gltf) => {
+          THREE.VRM.from(gltf).then((vrm) => {
+
+            
+           
+            // シーンへの追加
+            scene.add(vrm.scene);
+            // アニメーションの設定
+            setupAnimation(vrm);
+            });
+          }
+          /*(progress) => console.log('Loading model...',100.0*(progress.loaded/progress.total),'%'),
+
+          (error) => console.error(error)*/
+        );
+
+
+         /* // GLTF形式のモデルデータを読み込む
+        const loader = new THREE.GLTFLoader();
+        // GLTFファイルのパスを指定
+        loader.load('Nuttella_Latte.glb', (gltf) => {
+          // 読み込み後に3D空間に追加
+          //model.scale.set(1,1,1);
+          const model = gltf.scene;
+          scene.add(model);
+        });*/
+
+        // http → str
+       /* const http2str = (url) => {
+        try {
+          let request=new XMLHttpRequest()
+          request.open("GET",url,false)
+          request.send(null)
+          if (request.status==200 || request.status==0) {
+            return request.responseText.trim()
+          }
+        } catch (e) {
+          console.log(e)
+        }
+        return null
+        }    
+
+        // CSV → hierarchy
+      const csv2hierarchy = (csv, fps) => {
+        // 文字列 → 配列
+        let lines =  csv.trim().split('\n');
+        let data: Number[][] = [];
+        for (let j=0; j<lines.length; j++) {
+          data[j] = [];
+          let strs = lines[j].split(',');
+          for (let i=0; i<55*4; i++) {
+            data[j][i] = Number(strs[i]) ;           
+          }
+        }    
+   
+      // 配列 → hierarchy
+      let hierarchy = [];
+      for (let i=0; i<55; i++) {
+        let keys = [];
+        for (let j=0; j<data.length; j++) {
+          keys[j] = {
+            rot: new THREE.Quaternion(-data[j][i*4],-data[j][i*4+1],data[j][i*4+2],data[j][i*4+3]).toArray(),
+            time: fps*j                       
+          };
+        }
+        hierarchy[i] = {'keys': keys};
+      } 
+      return hierarchy;
+    }
+
+      // アニメーションの設定
+      const setupAnimation = (vrm) => {
+        // ボーンリストの生成
+        const bones = http2str('bone.txt').split('\n').map((boneName) => {
+          return vrm.humanoid.getBoneNode(boneName)
+        });
+     
+        // AnimationClipの生成
+        const clip = THREE.AnimationClip.parseAnimation({
+          hierarchy: csv2hierarchy(http2str('anim.csv'), 200)
+        }, bones)
+
+        // トラック名の変更
+      clip.tracks.some((track) => {
+        track.name = track.name.replace(/^\.bones\[([^\]]+)\].(position|quaternion|scale)$/, '$1.$2')
+      })
+   
+      // AnimationMixerの生成と再生
+      mixer = new THREE.AnimationMixer(vrm.scene)
+   
+      // AnimationActionの生成とアニメーションの再生
+      let action = mixer.clipAction(clip)
+      action.play()
+    }
+
+    // 最終更新時間
+    let lastTime = (new Date()).getTime()
+   
+
+    
+       
+
+      /*  var update = function() {
+      requestAnimationFrame(update);
+      model.roatation.x += 0.1;
+   
+      renderer.render(scene, camera);
+      };*/
+      update();
+
+        // 毎フレーム時に実行されるループイベントです
+        function update() {
+
+          requestAnimationFrame(update);
+         renderer.render(scene, camera);
+
+         
+        }
+    }
+    </script>
+</body>
