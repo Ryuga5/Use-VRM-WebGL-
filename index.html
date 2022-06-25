@@ -7,8 +7,8 @@
     <script src="three-vrm.js"></script>
   </head>
 <body>
- <h1>CG 最終提出課題</h1>
- コメント
+ <h1>WebGL学習</h1>
+ VRM形式の3Dモデルを表示、今後はUnityで作成したモーションデータを追加したい。
  <script>
       // ページの読み込みを待つ
       window.addEventListener('DOMContentLoaded', init);
@@ -47,7 +47,6 @@
         // 平行光源2
         var directionalLight2 = new THREE.DirectionalLight(0xffffff);
         directionalLight2.position.set(-10, -10, 10);
-       // directionlight2.castShadow = true;
         scene.add(directionalLight2);
 
         //地面
@@ -56,7 +55,6 @@
         var plane = new THREE.Mesh(planeGeometry,planeMaterial);
         plane.rotation.set( -Math.PI/2, 0, 0 );
         plane.position.set(0,0,0);
-       // plane.receiveShadow = true;
         scene.add(plane);
 
         
@@ -68,8 +66,6 @@
         (gltf) => {
           THREE.VRM.from(gltf).then((vrm) => {
 
-            
-           
             // シーンへの追加
             scene.add(vrm.scene);
             // アニメーションの設定
