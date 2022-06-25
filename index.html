@@ -81,107 +81,12 @@
           (error) => console.error(error)*/
         );
 
-
-         /* // GLTF形式のモデルデータを読み込む
-        const loader = new THREE.GLTFLoader();
-        // GLTFファイルのパスを指定
-        loader.load('Nuttella_Latte.glb', (gltf) => {
-          // 読み込み後に3D空間に追加
-          //model.scale.set(1,1,1);
-          const model = gltf.scene;
-          scene.add(model);
-        });*/
-
-        // http → str
-       /* const http2str = (url) => {
-        try {
-          let request=new XMLHttpRequest()
-          request.open("GET",url,false)
-          request.send(null)
-          if (request.status==200 || request.status==0) {
-            return request.responseText.trim()
-          }
-        } catch (e) {
-          console.log(e)
-        }
-        return null
-        }    
-
-        // CSV → hierarchy
-      const csv2hierarchy = (csv, fps) => {
-        // 文字列 → 配列
-        let lines =  csv.trim().split('\n');
-        let data: Number[][] = [];
-        for (let j=0; j<lines.length; j++) {
-          data[j] = [];
-          let strs = lines[j].split(',');
-          for (let i=0; i<55*4; i++) {
-            data[j][i] = Number(strs[i]) ;           
-          }
-        }    
-   
-      // 配列 → hierarchy
-      let hierarchy = [];
-      for (let i=0; i<55; i++) {
-        let keys = [];
-        for (let j=0; j<data.length; j++) {
-          keys[j] = {
-            rot: new THREE.Quaternion(-data[j][i*4],-data[j][i*4+1],data[j][i*4+2],data[j][i*4+3]).toArray(),
-            time: fps*j                       
-          };
-        }
-        hierarchy[i] = {'keys': keys};
-      } 
-      return hierarchy;
-    }
-
-      // アニメーションの設定
-      const setupAnimation = (vrm) => {
-        // ボーンリストの生成
-        const bones = http2str('bone.txt').split('\n').map((boneName) => {
-          return vrm.humanoid.getBoneNode(boneName)
-        });
-     
-        // AnimationClipの生成
-        const clip = THREE.AnimationClip.parseAnimation({
-          hierarchy: csv2hierarchy(http2str('anim.csv'), 200)
-        }, bones)
-
-        // トラック名の変更
-      clip.tracks.some((track) => {
-        track.name = track.name.replace(/^\.bones\[([^\]]+)\].(position|quaternion|scale)$/, '$1.$2')
-      })
-   
-      // AnimationMixerの生成と再生
-      mixer = new THREE.AnimationMixer(vrm.scene)
-   
-      // AnimationActionの生成とアニメーションの再生
-      let action = mixer.clipAction(clip)
-      action.play()
-    }
-
-    // 最終更新時間
-    let lastTime = (new Date()).getTime()
-   
-
-    
-       
-
-      /*  var update = function() {
-      requestAnimationFrame(update);
-      model.roatation.x += 0.1;
-   
-      renderer.render(scene, camera);
-      };*/
       update();
 
         // 毎フレーム時に実行されるループイベントです
         function update() {
-
           requestAnimationFrame(update);
          renderer.render(scene, camera);
-
-         
         }
     }
     </script>
